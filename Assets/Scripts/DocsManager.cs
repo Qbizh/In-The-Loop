@@ -1,0 +1,132 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using static NPC;
+
+public class DocsManager : MonoBehaviour
+{
+    public static DocsManager instance;
+    public static event Action<Doc> onDocAdded;
+
+    public List<Doc> docs = new List<Doc>();
+
+    [SerializeField] int maxLoopLength = 6;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        } else
+        {
+            Destroy(this);
+        }
+    }
+
+    public void GenerateDoc()
+    {
+        Doc doc = new Doc();
+        doc.loop.Add(NPCManager.instance.boss, true);
+        GetNextEditor(doc);
+
+        docs.Add(doc);
+        onDocAdded?.Invoke(doc);
+    }
+
+    public NPC GetNextEditor(Doc doc)
+    {
+        var npcs = new List<NPC>(NPCManager.instance.coworkers);
+        NPCManager.Shuffle(npcs);
+
+        foreach (var npc in npcs)
+        {
+            if (!doc.editHistory.Contains(npc))
+            {
+                doc.nextEditor = npc;
+                doc.editHistory.Add(npc);
+
+                npc.status = NPC.NPCStatus.Waiting;
+
+                return npc;
+            }
+        }
+
+        return null;
+    }
+
+    public bool TryEditDoc(NPC npc, Doc doc)
+    {
+        if (!doc.taken && doc.nextEditor == npc && !doc.NeedsReview())
+        {
+            doc.taken = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<Doc> GetRelevantDocs(NPC npc, bool forReview)
+    {
+        var list = new List<Doc>();
+
+        foreach (var doc in docs) 
+        {
+            if (forReview)
+            {
+                if (doc.loop.ContainsKey(npc))
+                {
+                    list.Add(doc);
+                }
+            } else
+            {
+                if (doc.nextEditor == npc)
+                {
+                    list.Add(doc);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public void FinishEdit(Doc doc)
+    {
+        doc.taken = false;
+
+        foreach (var npc in doc.loop.Keys.ToList())
+        {
+            if (npc != doc.editHistory[doc.editHistory.Count - 2])      // get the editor that just made an edit - if in loop don't get them to review it
+            {
+                doc.loop[npc] = false;
+                npc.SetStatus(NPCStatus.Reviewing);
+            }
+        }
+    }
+
+    public bool AddToLoop(NPC npc, Doc doc)
+    {
+        if (doc.loop.Count < maxLoopLength)
+        {
+            int random = UnityEngine.Random.Range(0, 2);
+            if (true)
+            {
+                doc.loop.Add(npc, true);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void ReviewDocs(NPC npc)
+    {
+        foreach (var doc in docs)
+        {
+            if (doc.loop.ContainsKey(npc))
+            {
+                doc.loop[npc] = true;
+            }
+        }
+    }
+}
