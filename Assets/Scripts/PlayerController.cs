@@ -77,11 +77,11 @@ public class PlayerController : MonoBehaviour
         if (isChoice)
         {
             dialogueText.text = "";
-            
+
 
             foreach (char c in text)
             {
-                await Awaitable.WaitForSecondsAsync(0.05f);
+                await Awaitable.WaitForSecondsAsync(1f / NPCManager.instance.talkSpeed);
                 dialogueText.text = dialogueText.text + c;
             }
 

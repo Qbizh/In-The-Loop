@@ -11,7 +11,7 @@ public class NPC : MonoBehaviour
     public TextAsset dialogue;
 
     public GameObject dialogueDisplay;
-    [SerializeField] TMP_Text dialogueText;
+    public TMP_Text dialogueText;
     [SerializeField] TMP_Text nameText;
 
     [SerializeField] Slider progressBar;
@@ -27,6 +27,9 @@ public class NPC : MonoBehaviour
         Reviewing,
         Talking
     }
+
+    Quaternion originalRot;
+    Quaternion targetRot;
 
     public string name;
     public GameObject hair;
@@ -44,6 +47,8 @@ public class NPC : MonoBehaviour
     private void Awake()
     {
         interactable = GetComponent<Interactable>();
+        originalRot = transform.rotation;
+        targetRot = originalRot;
     }
 
     public void OnEnable()
@@ -76,10 +81,13 @@ public class NPC : MonoBehaviour
         if (status == NPCStatus.Waiting || status == NPCStatus.Reviewing)
         {
             var docs = DocsManager.instance.GetRelevantDocs(this, status == NPCStatus.Reviewing);
-            Debug.Log(docs[0]);
+
             if (docs.Count > 0)
             {
                 currentDoc = docs[0];
+            } else
+            {
+                currentDoc = null;
             }
         }
 
@@ -89,13 +97,7 @@ public class NPC : MonoBehaviour
         {
             if (status == NPCStatus.Reviewing)
             {
-                if (!currentDoc.loop[this])
-                {
-                    DocsManager.instance.ReviewDocs(this);
-                } else
-                {
-                    SetStatus(NPCStatus.Idle);
-                }
+                DocsManager.instance.ReviewDoc(this, currentDoc);
             } else if (status == NPCStatus.Editing)
             {
                 editingDoneIcon.SetActive(false);
@@ -105,6 +107,9 @@ public class NPC : MonoBehaviour
 
             story.variablesState["nextPerson"] = currentDoc.nextEditor.name;
             story.variablesState["needToReview"] = currentDoc.NeedsReview();
+        } else if (status == NPCStatus.Reviewing)
+        {
+            SetStatus(NPCStatus.Idle);
         }
 
         DialogueManager.onStoryContinued += OnDialogueContinue;
@@ -114,6 +119,11 @@ public class NPC : MonoBehaviour
         DialogueManager.instance.EnterDialogue(story, status.ToString());
 
         SetStatus(NPCStatus.Talking);
+
+        var player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        Vector3 dir = -(transform.position - player.position).normalized;
+        targetRot = Quaternion.LookRotation(dir, transform.up);
     }
 
     public void SetStatus(NPCStatus newStatus)
@@ -122,7 +132,7 @@ public class NPC : MonoBehaviour
         status = newStatus;
     }
 
-    private void OnDialogueSkip()
+    public void OnDialogueSkip()
     {
         skipDialogue = true;
     }
@@ -166,6 +176,8 @@ public class NPC : MonoBehaviour
         dialogueDisplay.SetActive(false);
         interactable.SetCanInteract(true);
 
+        targetRot = originalRot;
+
         switch (lastStatus)
         {
             case NPCStatus.Idle:
@@ -192,13 +204,21 @@ public class NPC : MonoBehaviour
                     SetStatus(NPCStatus.Idle);
 
                     currentDoc = null;
+
+                    GameManager.instance.NextInstruction(4);
                 }
 
                 break;
             case NPCStatus.Reviewing:
+                var docs = DocsManager.instance.GetRelevantDocs(this, true);
 
-
-                SetStatus(NPCStatus.Idle);
+                if (docs.Count == 0)
+                {
+                    SetStatus(NPCStatus.Idle);
+                } else
+                {
+                    SetStatus(NPCStatus.Reviewing);
+                }          
 
                 break;
             case NPCStatus.Talking:
@@ -225,5 +245,16 @@ public class NPC : MonoBehaviour
         editingDoneIcon.gameObject.SetActive(true);
 
         interactable.SetCanInteract(true);
+    }
+
+    private void Update()
+    {
+        if (Mathf.Abs(transform.rotation.eulerAngles.y - targetRot.eulerAngles.y) >= 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 7);
+        } else
+        {
+            transform.rotation = targetRot;
+        }
     }
 }

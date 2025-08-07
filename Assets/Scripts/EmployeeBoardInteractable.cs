@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class EmployeeBoardInteractable : MonoBehaviour
 {
-    [SerializeField] GameObject employeeBoard;
+    [SerializeField] EmployeeBoard boardLogic;
+
+    [SerializeField] GameObject docsButton;
 
     private void OnEnable()
     {
@@ -11,9 +13,8 @@ public class EmployeeBoardInteractable : MonoBehaviour
 
     private void OnInteract()
     {
-        if (!employeeBoard.activeInHierarchy) 
-        {
-            employeeBoard.SetActive(true);
-        }
+        docsButton.SetActive(false);
+
+        boardLogic.OnBoardOpen();
     }
 }

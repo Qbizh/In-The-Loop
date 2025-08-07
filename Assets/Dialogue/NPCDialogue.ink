@@ -30,7 +30,7 @@ VAR keepInLoop = false
 * Ok.
 * Alright.
 
--{keepInLoop: Also make sure to keep me in the loop on these docs}
+-{keepInLoop: Also make sure to keep me in the loop on these.}
 
 
 --> END

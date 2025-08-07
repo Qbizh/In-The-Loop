@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 
-public class InputManager : MonoBehaviour, PlayerInput.IPlayerActions, PlayerInput.IDialogueActions
+public class InputManager : MonoBehaviour, PlayerInput.IPlayerActions, PlayerInput.IDialogueActions, PlayerInput.IUIActions
 {
     public static InputManager instance { get; private set; }
     PlayerInput playerInput;
+
+    public ActionMap activeActionMap = ActionMap.Player;
 
     public enum ActionMap
     {
@@ -29,6 +31,7 @@ public class InputManager : MonoBehaviour, PlayerInput.IPlayerActions, PlayerInp
 
         playerInput.Player.AddCallbacks(this);
         playerInput.Dialogue.AddCallbacks(this);
+        playerInput.UI.AddCallbacks(this);
 
         playerInput.Player.Enable();
     }
@@ -36,6 +39,7 @@ public class InputManager : MonoBehaviour, PlayerInput.IPlayerActions, PlayerInp
     public void SwitchActionMap(ActionMap mapType)
     {
         InputActionMap map = playerInput.Player;
+        activeActionMap = mapType;
 
         switch (mapType)
         {
@@ -106,6 +110,16 @@ public class InputManager : MonoBehaviour, PlayerInput.IPlayerActions, PlayerInp
         if (ctx.phase == InputActionPhase.Performed)
         {
             onSkip?.Invoke();
+        }
+    }
+
+    public static event Action onEscape;
+
+    public void OnEscape(InputAction.CallbackContext ctx)
+    {
+        if (ctx.phase == InputActionPhase.Performed)
+        {
+            onEscape?.Invoke();
         }
     }
 }

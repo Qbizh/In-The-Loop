@@ -10,6 +10,8 @@ public class Doc
 
     public bool taken;
 
+    public bool completed = false;
+
     public bool NeedsReview()
     {
         int count = 0;

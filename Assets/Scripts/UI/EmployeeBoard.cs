@@ -5,10 +5,15 @@ using UnityEngine.UI;
 
 public class EmployeeBoard : MonoBehaviour
 {
+    [SerializeField] GameObject board;
+    [SerializeField] GameObject docsButton;
+
     [SerializeField] Camera headshotCam;
     [SerializeField] Transform hairHolder;
 
     [SerializeField] Transform grid;
+
+    InputManager.ActionMap lastActionMap;
 
     public void SetUp(List<NPC> npcs)
     {
@@ -39,5 +44,33 @@ public class EmployeeBoard : MonoBehaviour
         }
 
         headshotCam.gameObject.SetActive(false);
+    }
+
+    private void OnEscape()
+    {
+        if (board.activeInHierarchy)
+        {
+            InputManager.onEscape -= OnEscape;
+            docsButton.SetActive(true);
+
+            OnBoardClose();
+        }
+    }
+
+    public void OnBoardOpen()
+    {
+        board.SetActive(true);
+
+        lastActionMap = InputManager.instance.activeActionMap;
+        InputManager.instance.SwitchActionMap(InputManager.ActionMap.UI);
+
+        InputManager.onEscape += OnEscape;
+    }
+    
+    public void OnBoardClose()
+    {
+        board.SetActive(false);
+
+        InputManager.instance.SwitchActionMap(lastActionMap);
     }
 }

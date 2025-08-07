@@ -7,12 +7,14 @@ using static NPC;
 public class DocsManager : MonoBehaviour
 {
     public static DocsManager instance;
-    public static event Action<Doc> onDocAdded;
+    public static event Action<Doc, int> onDocAdded;
 
     public List<Doc> docs = new List<Doc>();
 
     [SerializeField] int maxLoopLength = 6;
 
+    [SerializeField] int editorsNecessary = 5;
+ 
     private void Awake()
     {
         if (instance == null)
@@ -31,7 +33,8 @@ public class DocsManager : MonoBehaviour
         GetNextEditor(doc);
 
         docs.Add(doc);
-        onDocAdded?.Invoke(doc);
+
+        onDocAdded?.Invoke(doc, docs.Count - 1);
     }
 
     public NPC GetNextEditor(Doc doc)
@@ -74,7 +77,7 @@ public class DocsManager : MonoBehaviour
         {
             if (forReview)
             {
-                if (doc.loop.ContainsKey(npc))
+                if (doc.loop.ContainsKey(npc) && !doc.loop[npc])
                 {
                     list.Add(doc);
                 }
@@ -94,13 +97,40 @@ public class DocsManager : MonoBehaviour
     {
         doc.taken = false;
 
-        foreach (var npc in doc.loop.Keys.ToList())
+        if (doc.editHistory.Count <= editorsNecessary)
         {
-            if (npc != doc.editHistory[doc.editHistory.Count - 2])      // get the editor that just made an edit - if in loop don't get them to review it
+            foreach (var npc in doc.loop.Keys.ToList())
             {
-                doc.loop[npc] = false;
-                npc.SetStatus(NPCStatus.Reviewing);
+                if (npc != doc.editHistory[doc.editHistory.Count - 2])      // get the editor that just made an edit - if in loop don't get them to review it
+                {
+                    doc.loop[npc] = false;
+                    npc.SetStatus(NPCStatus.Reviewing);
+                }
             }
+        } else
+        {
+            CompleteDoc(doc);
+        }
+    }
+
+    private void CompleteDoc(Doc doc)
+    {
+        doc.completed = true;
+
+        bool allCompleted = true;
+
+        foreach (var d in docs)
+        {
+            if (!d.completed)
+            {
+                allCompleted = false;
+                break;
+            }
+        }
+
+        if (allCompleted)
+        {
+            GameManager.instance.EndGame(true);
         }
     }
 
@@ -119,14 +149,11 @@ public class DocsManager : MonoBehaviour
         return false;
     }
 
-    public void ReviewDocs(NPC npc)
+    public void ReviewDoc(NPC npc, Doc doc)
     {
-        foreach (var doc in docs)
+        if (doc.loop.ContainsKey(npc))
         {
-            if (doc.loop.ContainsKey(npc))
-            {
-                doc.loop[npc] = true;
-            }
+            doc.loop[npc] = true;
         }
     }
 }

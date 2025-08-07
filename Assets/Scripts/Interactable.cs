@@ -31,19 +31,25 @@ public class Interactable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<PlayerController>() != null && canInteract)
+        if (other.GetComponent<PlayerController>() != null)
         {
-            InteractableManager.instance.SetActiveInteractable(this, false);
             containsPlayer = true;
+            if (canInteract)
+            {
+                InteractableManager.instance.SetActiveInteractable(this, false);
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<PlayerController>() != null && canInteract)
+        if (other.GetComponent<PlayerController>() != null)
         {
-            InteractableManager.instance.SetActiveInteractable(this, true);
             containsPlayer = false;
+            if (canInteract)
+            {
+                InteractableManager.instance.SetActiveInteractable(this, true);
+            }
         }
     }
 

@@ -18,7 +18,7 @@ public class DialogueManager : MonoBehaviour
 
     public Story currentStory;
 
-    bool dialoguePlaying = false;
+    public bool dialoguePlaying = false;
     bool waitingForChoice = false;
 
     private void Awake()
@@ -67,16 +67,19 @@ public class DialogueManager : MonoBehaviour
 
     private void ContinueStory()
     {
-        string text = currentStory.Continue();
+        if (currentStory.canContinue)
+        {
+            string text = currentStory.Continue();
 
-        onStoryContinued?.Invoke(text, waitingForChoice);
+            onStoryContinued?.Invoke(text, waitingForChoice);
+        }
     }
 
     public void OnChoice(int choice)
     {
-        if (waitingForChoice)
+        if (waitingForChoice && currentStory.currentChoices.Count > 0)
         {
-            if (currentStory.currentChoices.Count > 0)
+            if (true)
             {
                 currentStory.ChooseChoiceIndex(choice);
             }

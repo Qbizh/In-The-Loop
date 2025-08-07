@@ -7,6 +7,8 @@ public class Boss : NPC
 
     bool firstTalk = true;
 
+    [SerializeField] string[] yellDialogues;
+
     private new void OnEnable()
     {
         interactable.onInteract += OnInteract;
@@ -27,14 +29,19 @@ public class Boss : NPC
         {
             GameManager.instance.HideInstruction();
 
-            /*DialogueManager.onStoryContinued += OnDialogueContinue;
+            DialogueManager.onStoryContinued += OnDialogueContinue;
             DialogueManager.onStoryEnd += OnDialogueEnd;
 
-            DialogueManager.instance.EnterDialogue(new Story(bossDialogue.text), "Main");*/
+            if (!GameManager.instance.tutorialActive)
+            {
+                DialogueManager.onDialogueSkipped += OnDialogueSkip;
+            }
+
+            DialogueManager.instance.EnterDialogue(new Story(bossDialogue.text), GameManager.instance.tutorialActive ? "Tutorial" : "Normal");
 
             status = NPCStatus.Talking;
 
-            OnDialogueEnd();
+            //OnDialogueEnd();
         } else
         {
             base.OnInteract();
@@ -43,14 +50,34 @@ public class Boss : NPC
 
     public new void OnDialogueEnd()
     {
+        DialogueManager.onStoryEnd -= OnDialogueEnd;                // has to unsubscribe from the new one
+        
         base.OnDialogueEnd();
 
         if (firstTalk)
         {
             firstTalk = false;
-            DocsManager.instance.GenerateDoc();
-            GameManager.instance.NextInstruction();
+            GameManager.instance.NextInstruction(1);
             SetStatus(NPCStatus.Reviewing);
         }
+    }
+
+    public async void YellAtPlayer(int level)
+    {
+        dialogueDisplay.SetActive(true);
+
+        dialogueText.text = "";
+
+        string text = yellDialogues[level];
+
+        foreach (char c in text)
+        {
+            await Awaitable.WaitForSecondsAsync(1f / NPCManager.instance.talkSpeed);
+            dialogueText.text = dialogueText.text + c;
+        }
+
+        await Awaitable.WaitForSecondsAsync(NPCManager.instance.readTime);
+
+        dialogueDisplay.SetActive(false);
     }
 }
