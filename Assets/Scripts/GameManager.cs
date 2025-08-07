@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text firedReasonText;
 
     [SerializeField] GameObject winScreen;
+    [SerializeField] TMP_Text difficultyText;
+    [SerializeField] TMP_Text spareTimeText;
+    [SerializeField] TMP_Text mistakesText;
 
     [SerializeField] GameObject instructionsPanel;
 
@@ -114,7 +117,12 @@ public class GameManager : MonoBehaviour
 
         if (won)
         {
+            difficultyText.text = "Difficulty " + GameDataHolder.instance.data.difficulty;
+            spareTimeText.text = timerDisplay.text + " to spare";
+            mistakesText.text = mistakes + " mistakes";
+
             winScreen.SetActive(true);
+            
         } else
         {
             if (timer > 0)
@@ -126,7 +134,6 @@ public class GameManager : MonoBehaviour
             }
 
             firedNotice.SetActive(true);
-            firedNotice.GetComponent<Animator>();
         }
     }
 

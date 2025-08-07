@@ -13,7 +13,7 @@ public class DocsManager : MonoBehaviour
 
     [SerializeField] int maxLoopLength = 6;
 
-    [SerializeField] int editorsNecessary = 5;
+    public int editorsNecessary = 5;
  
     private void Awake()
     {
@@ -138,8 +138,8 @@ public class DocsManager : MonoBehaviour
     {
         if (doc.loop.Count < maxLoopLength)
         {
-            int random = UnityEngine.Random.Range(0, 2);
-            if (true)
+            int random = UnityEngine.Random.Range(0, 3);
+            if (random == 0)
             {
                 doc.loop.Add(npc, true);
                 return true;

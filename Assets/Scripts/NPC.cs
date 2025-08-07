@@ -101,8 +101,13 @@ public class NPC : MonoBehaviour
             } else if (status == NPCStatus.Editing)
             {
                 editingDoneIcon.SetActive(false);
+
+                bool lastEditor = currentDoc.editHistory.Count >= DocsManager.instance.editorsNecessary;
+
+                story.variablesState["lastEditor"] = lastEditor;
+
                 DocsManager.instance.GetNextEditor(currentDoc);
-                story.variablesState["keepInLoop"] = DocsManager.instance.AddToLoop(this, currentDoc);
+                story.variablesState["keepInLoop"] = DocsManager.instance.AddToLoop(this, currentDoc) && !lastEditor;
             }
 
             story.variablesState["nextPerson"] = currentDoc.nextEditor.name;
@@ -143,25 +148,28 @@ public class NPC : MonoBehaviour
 
         if (!isChoice)
         {
-            dialogueText.text = "";
-
-            skipDialogue = false;
-
-            foreach (char c in text)
+            if (!String.IsNullOrWhiteSpace(text))
             {
-                if (skipDialogue)
-                {
-                    dialogueText.text = text;
+                dialogueText.text = "";
 
-                    break;
+                skipDialogue = false;
+
+                foreach (char c in text)
+                {
+                    if (skipDialogue)
+                    {
+                        dialogueText.text = text;
+
+                        break;
+                    }
+
+                    await Awaitable.WaitForSecondsAsync(1f / NPCManager.instance.talkSpeed);
+                    dialogueText.text = dialogueText.text + c;
                 }
 
-                await Awaitable.WaitForSecondsAsync(1f / NPCManager.instance.talkSpeed);
-                dialogueText.text = dialogueText.text + c;
+                await Awaitable.WaitForSecondsAsync(skipDialogue ? 0.5f : NPCManager.instance.readTime);
+                skipDialogue = false;
             }
-
-            await Awaitable.WaitForSecondsAsync(skipDialogue ? 0.5f : NPCManager.instance.readTime);
-            skipDialogue = false;
 
             DialogueManager.instance.TryContinueDialogue();
         }

@@ -1,7 +1,9 @@
 VAR nextPerson = "Peter Marsh"
 VAR needToReview = false
 VAR keepInLoop = false
-->Waiting
+VAR lastEditor = false
+-> Editing
+
 ==Idle==
 -I think you're looking for someone else.
 -> END
@@ -15,18 +17,16 @@ VAR keepInLoop = false
 -> END
 
 ==Editing==
-{ shuffle:
-	 -Docs are ready.
-	 -I'm done.
-	 -I've got those docs here.
+{shuffle:
+	- Docs are ready.
+	- I'm done.
+	- I've got those docs here.
 }
-
-{ shuffle:
-	 -After they're reviwed, bring these to {nextPerson}.
-	 -After review, {nextPerson} needs these.
-	 -Take these docs over to {nextPerson} after they're reviewed.
-}
-
+{lastEditor == false: {shuffle:
+	- After they're reviewed, bring these to {nextPerson}.
+	- After review, {nextPerson} needs these.
+	- Take these docs over to {nextPerson} after they're reviewed.
+}}
 * Ok.
 * Alright.
 
