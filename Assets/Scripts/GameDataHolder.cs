@@ -27,6 +27,11 @@ public class GameDataHolder : MonoBehaviour
 
     private void OnDisable()
     {
+        SaveData();
+    }
+
+    private void SaveData()
+    {
         PlayerPrefs.SetFloat("MusicVolume", data.musicVolume);
         PlayerPrefs.SetFloat("SFXVolume", data.sfxVolume);
         PlayerPrefs.SetInt("Difficulty", data.difficulty);
@@ -40,5 +45,7 @@ public class GameDataHolder : MonoBehaviour
         data.sfxVolume = sfx;
         data.difficulty = diff;
         data.tutorialActive = tutorial;
+
+        SaveData();
     }
 }

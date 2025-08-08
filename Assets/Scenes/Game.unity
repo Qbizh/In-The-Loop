@@ -9217,6 +9217,11 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1085968560 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8545985942845000229, guid: fba2a980447810c42803ba3e1ba759c3, type: 3}
+  m_PrefabInstance: {fileID: 1708101979}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1086599683 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5335620156729328298, guid: fba2a980447810c42803ba3e1ba759c3, type: 3}
@@ -13564,6 +13569,7 @@ MonoBehaviour:
   - Stop slacking! This is the last straw!
   - Hey! Get back to work!
   - Didn't I tell you to stop?!
+  skipPanel: {fileID: 1085968560}
 --- !u!114 &1708101991 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5173060363991155093, guid: fba2a980447810c42803ba3e1ba759c3, type: 3}

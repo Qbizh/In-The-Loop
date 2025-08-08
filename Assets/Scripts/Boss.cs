@@ -9,6 +9,8 @@ public class Boss : NPC
 
     [SerializeField] string[] yellDialogues;
 
+    [SerializeField] GameObject skipPanel;
+
     private new void OnEnable()
     {
         interactable.onInteract += OnInteract;
@@ -37,11 +39,10 @@ public class Boss : NPC
                 DialogueManager.onDialogueSkipped += OnDialogueSkip;
             }
 
+            skipPanel.SetActive(!GameManager.instance.tutorialActive);
             DialogueManager.instance.EnterDialogue(new Story(bossDialogue.text), GameManager.instance.tutorialActive ? "Tutorial" : "Normal");
 
             status = NPCStatus.Talking;
-
-            //OnDialogueEnd();
         } else
         {
             base.OnInteract();
@@ -56,6 +57,8 @@ public class Boss : NPC
 
         if (firstTalk)
         {
+            skipPanel.SetActive(true);
+
             firstTalk = false;
             GameManager.instance.NextInstruction(1);
             SetStatus(NPCStatus.Reviewing);
@@ -65,6 +68,7 @@ public class Boss : NPC
     public async void YellAtPlayer(int level)
     {
         dialogueDisplay.SetActive(true);
+        skipPanel.SetActive(false);
 
         dialogueText.text = "";
 
@@ -79,5 +83,6 @@ public class Boss : NPC
         await Awaitable.WaitForSecondsAsync(NPCManager.instance.readTime);
 
         dialogueDisplay.SetActive(false);
+        skipPanel.SetActive(true);
     }
 }
