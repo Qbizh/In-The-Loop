@@ -119,7 +119,7 @@ public class DocsUIHandler : MonoBehaviour
                 loopStickies.Add(sticky);
             }
 
-            nextEditorText.text = "Bring to " + doc.nextEditor.name;
+            nextEditorText.text = "Next editor: " + doc.nextEditor.name;
         } else
         {
             docPanel.SetActive(false);

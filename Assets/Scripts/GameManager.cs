@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
         {
             difficultyText.text = "Difficulty " + GameDataHolder.instance.data.difficulty;
             spareTimeText.text = timerDisplay.text + " to spare";
-            mistakesText.text = mistakes + " mistakes";
+            mistakesText.text = mistakes - 1 + " mistakes";
 
             winScreen.SetActive(true);
             

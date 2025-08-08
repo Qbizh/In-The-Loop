@@ -104,9 +104,16 @@ public class NPC : MonoBehaviour
 
                 bool lastEditor = currentDoc.editHistory.Count >= DocsManager.instance.editorsNecessary;
 
+                DocsManager.instance.GetNextEditor(currentDoc);
+
+                if (currentDoc.nextEditor == null)
+                {
+                    currentDoc.completed = true;
+                    lastEditor = true;
+                }
+
                 story.variablesState["lastEditor"] = lastEditor;
 
-                DocsManager.instance.GetNextEditor(currentDoc);
                 story.variablesState["keepInLoop"] = DocsManager.instance.AddToLoop(this, currentDoc) && !lastEditor;
             }
 

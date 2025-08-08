@@ -44,7 +44,7 @@ public class DocsManager : MonoBehaviour
 
         foreach (var npc in npcs)
         {
-            if (!doc.editHistory.Contains(npc))
+            if (!doc.editHistory.Contains(npc) && GetRelevantDocs(npc, true).Count == 0 && GetRelevantDocs(npc, false).Count == 0)
             {
                 doc.nextEditor = npc;
                 doc.editHistory.Add(npc);
@@ -55,6 +55,7 @@ public class DocsManager : MonoBehaviour
             }
         }
 
+        doc.nextEditor = null;
         return null;
     }
 
@@ -97,7 +98,7 @@ public class DocsManager : MonoBehaviour
     {
         doc.taken = false;
 
-        if (doc.editHistory.Count <= editorsNecessary)
+        if (doc.editHistory.Count <= editorsNecessary && !doc.completed)
         {
             foreach (var npc in doc.loop.Keys.ToList())
             {
